@@ -3,11 +3,11 @@
 2. The square moves N cells down each second.
 Don't use timeout/interval, we'd like to keep all movement logic in a single place. Keep y coordinate as a floating point, increment with a step during each update, check with Math.floor.
 3. The square stops when bottom is reached or existing block is hit (introduce board)
-4. Game finishes when top is touched.
-5. A full row is removed from board.
-6. The square can be rapidly moved down using the down arrow.
-7. Block can have different shape, it's randomly chosen on spawn.
-8. Block can be rotated.
+4. A full row is removed from board.
+5. Block can have different shape, it's randomly chosen on spawn.
+6. Game finishes when top is touched.
+7. Block can be rotated.
+8. The square can be rapidly moved down using the down arrow.
 9. Extras
 - Show score
 - Add sounds

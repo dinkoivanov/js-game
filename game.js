@@ -1,5 +1,5 @@
-const H_CELLS = 25;
-const V_CELLS = 35;
+const H_CELLS = 6;
+const V_CELLS = 5;
 const CELL_SIZE = 20;
 
 const CANVAS_WIDTH = H_CELLS * CELL_SIZE;
@@ -63,9 +63,25 @@ function movePieces() {
     p.y += V_SPEED_CELLS_PER_UPDATE;
     let f = Math.floor(p.y);
     if (f >= V_CELLS || board[p.x][f]) {
-        board[p.x][f-1] = true;
+        let row = f-1;
+        board[p.x][row] = true;
+
+        // check for filled line
+        let col = 0;
+        while (col < H_CELLS && board[col][row]) {
+            col++;
+        }
+        // filled line, remove
+        if (col == H_CELLS) {
+            for (let r = row; r > 0; r--) {
+                for (col = 0; col < H_CELLS; col++) {
+                    board[col][r] = board[col][r-1];
+                }    
+            }
+        }
+
         p = new player(Math.round(H_CELLS / 2), 0, 'red');
-    } 
+    }
 }
 
 function drawScene() {
