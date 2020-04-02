@@ -5,9 +5,9 @@ Don't use timeout/interval, we'd like to keep all movement logic in a single pla
 3. The square stops when bottom is reached or existing block is hit (introduce board)
 4. A full row is removed from board.
 5. Block can have different shape, it's randomly chosen on spawn.
-6. Game finishes when top is touched.
-7. Block can be rotated.
-8. The square can be rapidly moved down using the down arrow.
+6. Block can be rotated.
+7. The square can be rapidly moved down using the down arrow.
+8. Game finishes when top is touched.
 9. Extras
 - Show score
 - Add sounds
