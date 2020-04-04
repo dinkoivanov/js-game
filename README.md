@@ -12,5 +12,6 @@ Don't use timeout/interval, we'd like to keep all movement logic in a single pla
 - Show score
 - Add sounds
 - Show next piece
+- Increase speed
 10. Optimization
 - Only redraw what's changed on the screen

@@ -1,9 +1,8 @@
-const SHAPE_SIZE = 4;
-const SHAPE_T = [[0, 1, 0, 0],[1, 1, 0, 0],[0, 1, 0, 0],[0, 0, 0, 0]];
-const SHAPE_2 = [[1, 0, 0, 0],[1, 1, 0, 0],[0, 1, 0, 0],[0, 0, 0, 0]];
-const SHAPE_5 = [[0, 1, 0, 0],[1, 1, 0, 0],[1, 0, 0, 0],[0, 0, 0, 0]];
-const SHAPE_0 = [[0, 0, 0, 0],[1, 1, 0, 0],[1, 1, 0, 0],[0, 0, 0, 0]];
-const SHAPE_I = [[0, 0, 0, 0],[1, 1, 1, 1],[0, 0, 0, 0],[0, 0, 0, 0]];
+const SHAPE_T = [[0, 1],[1, 1],[0, 1]];
+const SHAPE_2 = [[1, 0],[1, 1],[0, 1]];
+const SHAPE_5 = [[0, 1],[1, 1],[1, 0]];
+const SHAPE_0 = [[1, 1],[1, 1]];
+const SHAPE_I = [[1, 1, 1, 1]];
 const ALL_SHAPES = [SHAPE_T, SHAPE_2, SHAPE_5, SHAPE_0, SHAPE_I];
 
 const H_CELLS = 12;
@@ -16,35 +15,41 @@ const UPDATES_PER_SECOND = 10;
 const V_SPEED_CELLS_PER_SECOND = 2;
 const V_SPEED_CELLS_PER_UPDATE = V_SPEED_CELLS_PER_SECOND / UPDATES_PER_SECOND;
 
-function player() {
-    this.x = Math.round((H_CELLS - SHAPE_SIZE)/ 2);
-    this.y = 0;
+function brick() {
     let randomIndex = Math.floor(Math.random() * Math.floor(ALL_SHAPES.length));
     this.shape = ALL_SHAPES[randomIndex];
+    this.x = Math.round((H_CELLS - this.shape.length)/ 2);
+    this.y = 0;
     this.color = 'red';
 
     this.draw = context => {
         context.fillStyle = this.color;
-        for (let col = 0; col < SHAPE_SIZE; col++) {
-            for (let row = 0; row < SHAPE_SIZE; row++) {
-                if (this.shape[col][row] == 1) {
+        for (let col = 0; col < this.shape.length; col++) {
+            let c = this.shape[col];
+            for (let row = 0; row < c.length; row++) {
+                if (c[row] == 1) {
                     context.fillRect((this.x + col)* CELL_SIZE, (Math.floor(this.y) + row) * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 }
             }
         }
     }
 
-    this.moveH = (deltaX) => {
+    this.allow = (nx, ny) => {
         let allow = true;
-        let newX = this.x + deltaX;
-        for (let col = 0; col < SHAPE_SIZE && allow; col++) {
-            for (let row = 0; row < SHAPE_SIZE && allow; row++) {
-                if (this.shape[col][row] == 1) {
-                    allow = newX + col >= 0 && newX + col < H_CELLS && !board[newX + col][Math.floor(this.y) + row];
+        for (let col = 0; col < this.shape.length && allow; col++) {
+            let c = this.shape[col];
+            for (let row = 0; row < c.length && allow; row++) {
+                if (c[row] == 1) {
+                    allow = nx + col >= 0 && nx + col < H_CELLS && !board[nx + col][ny + row];
                 }
             }
         }
-        if (allow) {
+        return allow;
+    } 
+
+    this.moveH = (deltaX) => {
+        let newX = this.x + deltaX;
+        if (this.allow(newX, Math.floor(this.y))) {
             this.x = newX;
         }
     };
@@ -67,9 +72,10 @@ function movePieces() {
 
     // check hit
     let hit = false;
-    for (let col = 0; col < SHAPE_SIZE && !hit; col++) {
-        for (let row = 0; row < SHAPE_SIZE && !hit; row++) {
-            if (p.shape[col][row] == 1) {
+    for (let col = 0; col < p.shape.length && !hit; col++) {
+        let c = p.shape[col];
+        for (let row = 0; row < c.length && !hit; row++) {
+            if (c[row] == 1) {
                 hit = f + row >= V_CELLS || board[p.x + col][f + row];
             }
         }
@@ -77,16 +83,19 @@ function movePieces() {
 
     if (hit) {
         let r1 = f-1;
-        for (let col = 0; col < SHAPE_SIZE; col++) {
-            for (let row = 0; row < SHAPE_SIZE; row++) {
-                if (p.shape[col][row] == 1) {
+
+        // put the brick in place
+        for (let col = 0; col < p.shape.length; col++) {
+            let c = p.shape[col];
+            for (let row = 0; row < c.length; row++) {
+                if (c[row] == 1) {
                     board[p.x + col][row + r1] = true;
                 }
             }
         }
 
         // check for filled lines
-        for (let row = 0; row < SHAPE_SIZE; row++) {
+        for (let row = 0; row < p.shape.length; row++) {
             let col = 0;
             while (col < H_CELLS && board[col][r1 + row]) {
                 col++;
@@ -101,7 +110,7 @@ function movePieces() {
             }
         }
 
-        p = new player();
+        p = new brick();
     }
 }
 
@@ -146,6 +155,6 @@ window.addEventListener('keydown', e => {
     k = e.keyCode;
     e.preventDefault();
 }, false);
-let p = new player();
+let p = new brick();
 
 setInterval(gameLoop, 1000 / UPDATES_PER_SECOND);
