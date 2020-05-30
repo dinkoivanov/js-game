@@ -1,12 +1,14 @@
-const SHAPE_T = [[0, 1],[1, 1],[0, 1]];
-const SHAPE_2 = [[1, 0],[1, 1],[0, 1]];
-const SHAPE_5 = [[0, 1],[1, 1],[1, 0]];
-const SHAPE_0 = [[1, 1],[1, 1]];
+const SHAPE_T = [[0, 1], [1, 1], [0, 1]];
+const SHAPE_2 = [[1, 0], [1, 1], [0, 1]];
+const SHAPE_5 = [[0, 1], [1, 1], [1, 0]];
+const SHAPE_0 = [[1, 1], [1, 1]];
 const SHAPE_I = [[1, 1, 1, 1]];
-const ALL_SHAPES = [SHAPE_T, SHAPE_2, SHAPE_5, SHAPE_0, SHAPE_I];
+const SHAPE_L = [[1, 1, 1], [0, 0, 1]];
+const SHAPE_LR = [[0, 0, 1], [1, 1, 1]];
+const ALL_SHAPES = [SHAPE_T, SHAPE_2, SHAPE_5, SHAPE_0, SHAPE_I, SHAPE_L, SHAPE_LR];
 
-const H_CELLS = 12;
-const V_CELLS = 8;
+const H_CELLS = 10;
+const V_CELLS = 10;
 const CELL_SIZE = 20;
 
 const CANVAS_WIDTH = H_CELLS * CELL_SIZE;
@@ -34,10 +36,10 @@ function brick() {
         }
     }
 
-    this.allow = (nx, ny) => {
+    this.allow = (nx, ny, sh) => {
         let allow = true;
-        for (let col = 0; col < this.shape.length && allow; col++) {
-            let c = this.shape[col];
+        for (let col = 0; col < sh.length && allow; col++) {
+            let c = sh[col];
             for (let row = 0; row < c.length && allow; row++) {
                 if (c[row] == 1) {
                     allow = nx + col >= 0 && nx + col < H_CELLS && !board[nx + col][ny + row];
@@ -49,8 +51,28 @@ function brick() {
 
     this.moveH = (deltaX) => {
         let newX = this.x + deltaX;
-        if (this.allow(newX, Math.floor(this.y))) {
+        if (this.allow(newX, Math.floor(this.y), this.shape)) {
             this.x = newX;
+        }
+    };
+
+    this.rotate = () => {
+        
+        let newShape = [];
+        let height = this.shape[0].length;
+        for (let i = 0; i < height; i++) {
+            newShape.push([]);
+        }
+
+        for (let c = 0; c < this.shape.length; c++) {
+            let column = this.shape[c];
+            for (let r = 0; r < column.length; r++) {
+                newShape[r][c] = column[column.length-r-1];
+            }
+        }
+
+        if (this.allow(this.x, Math.floor(this.y), newShape)) {
+            this.shape = newShape;
         }
     };
 
@@ -63,6 +85,9 @@ function movePieces() {
             break;
         case 39:
             p.moveH(1);
+            break;
+        case 32:
+            p.rotate();
             break;
     }
     k = 0;
@@ -95,7 +120,7 @@ function movePieces() {
         }
 
         // check for filled lines
-        for (let row = 0; row < p.shape.length; row++) {
+        for (let row = 0; row < p.shape[0].length; row++) {
             let col = 0;
             while (col < H_CELLS && board[col][r1 + row]) {
                 col++;
